@@ -22,10 +22,14 @@ ESHitResponse::ESHitResponse( const CaloVSimParameterMap* parameterMap ,
    const unsigned int size ( ESDetId::kSizeForDenseIndexing ) ;
 
    m_vSam.reserve( size ) ;
+   m_vBXSam.reserve( size ) ;
 
    for( unsigned int i ( 0 ) ; i != size ; ++i )
    {
       m_vSam.emplace_back(
+	 CaloGenericDetId( detId.det(), detId.subdetId(), i ) ,
+		    rSize, nPre ) ;
+      m_vBXSam.emplace_back(
 	 CaloGenericDetId( detId.det(), detId.subdetId(), i ) ,
 		    rSize, nPre ) ;
    }
@@ -75,4 +79,34 @@ const EcalHitResponse::EcalSamples*
 ESHitResponse::vSamAll( unsigned int i ) const
 {
    return &m_vSam[ i ] ;
+}
+
+unsigned int
+ESHitResponse::BXsamplesSize() const
+{
+   return indexBX().size() ;
+}
+
+unsigned int
+ESHitResponse::BXsamplesSizeAll() const
+{
+   return ESDetId::kSizeForDenseIndexing ;
+}
+
+EcalHitResponse::EcalBXSamples*
+ESHitResponse::vBXSam( unsigned int i )
+{
+   return &m_vBXSam[ index()[ i ] ] ;
+}
+
+EcalHitResponse::EcalBXSamples*
+ESHitResponse::vBXSamAll( unsigned int i )
+{
+   return &m_vBXSam[ i ] ;
+}
+
+const EcalHitResponse::EcalBXSamples*
+ESHitResponse::vBXSamAll( unsigned int i ) const
+{
+   return &m_vBXSam[ i ] ;
 }

@@ -1,4 +1,5 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/EcalDigi/interface/EcalBXCollections.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
 namespace DataFormats_EcalDigi {
@@ -22,6 +23,8 @@ namespace DataFormats_EcalDigi {
     EBDigiCollection theEB_;
     EEDigiCollection theEE_;
     ESDigiCollection theES_;
+    EBBXCollection   theEBBX_;
+    EEBXCollection   theEEBX_;
     EcalTrigPrimDigiCollection theETP_;
     EcalTrigPrimCompactColl theETP2_;
     
@@ -34,6 +37,9 @@ namespace DataFormats_EcalDigi {
     edm::Wrapper<EBDigiCollection> anotherEBw_;
     edm::Wrapper<EEDigiCollection> anotherEEw_;
     edm::Wrapper<ESDigiCollection> anotherESw_;
+    edm::Wrapper<EcalBXCollection> anotherECalBXw_;
+    edm::Wrapper<EBBXCollection> anotherEBBXw_;
+    edm::Wrapper<EEBXCollection> anotherEEBXw_;
     edm::Wrapper<EcalTrigPrimDigiCollection> anotherETPw_;
     edm::Wrapper<EcalTrigPrimCompactColl> anotherETP2w_;
     edm::Wrapper<EBSrFlagCollection> anotherEBSRFw_;

@@ -7,6 +7,7 @@
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalSimParameterMap.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/APDSimParameters.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/EcalDigi/interface/EcalBXCollections.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalCoder.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalElectronicsSim.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/ESElectronicsSimFast.h"
@@ -64,6 +65,8 @@ EcalDigiProducer::EcalDigiProducer( const edm::ParameterSet& params, edm::one::E
    m_EBdigiCollection ( params.getParameter<std::string>("EBdigiCollection") ) ,
    m_EEdigiCollection ( params.getParameter<std::string>("EEdigiCollection") ) ,
    m_ESdigiCollection ( params.getParameter<std::string>("ESdigiCollection") ) ,
+   m_EBBXCollection   ( params.getParameter<std::string>("EBBXCollection") ) ,
+   m_EEBXCollection   ( params.getParameter<std::string>("EEBXCollection") ) ,
    m_hitsProducerTag  ( params.getParameter<std::string>("hitsProducer"    ) ) ,
    m_useLCcorrection  ( params.getUntrackedParameter<bool>("UseLCcorrection") ) ,
    m_apdSeparateDigi  ( params.getParameter<bool>       ("apdSeparateDigi") ) ,
@@ -152,6 +155,8 @@ EcalDigiProducer::EcalDigiProducer( const edm::ParameterSet& params, edm::one::E
    mixMod.produces<EBDigiCollection>(m_EBdigiCollection);
    mixMod.produces<EEDigiCollection>(m_EEdigiCollection);
    mixMod.produces<ESDigiCollection>(m_ESdigiCollection);
+   mixMod.produces<EBBXCollection>(m_EBBXCollection);
+   mixMod.produces<EEBXCollection>(m_EEBXCollection);
    iC.consumes<std::vector<PCaloHit> >(edm::InputTag(m_hitsProducerTag, "EcalHitsEB"));
    iC.consumes<std::vector<PCaloHit> >(edm::InputTag(m_hitsProducerTag, "EcalHitsEE"));
    iC.consumes<std::vector<PCaloHit> >(edm::InputTag(m_hitsProducerTag, "EcalHitsES"));
@@ -278,6 +283,8 @@ EcalDigiProducer::EcalDigiProducer( const edm::ParameterSet& params,  edm::Consu
    m_EBdigiCollection ( params.getParameter<std::string>("EBdigiCollection") ) ,
    m_EEdigiCollection ( params.getParameter<std::string>("EEdigiCollection") ) ,
    m_ESdigiCollection ( params.getParameter<std::string>("ESdigiCollection") ) ,
+   m_EBBXCollection   ( params.getParameter<std::string>("EBBXCollection") ) ,
+   m_EEBXCollection   ( params.getParameter<std::string>("EEBXCollection") ) ,
    m_hitsProducerTag  ( params.getParameter<std::string>("hitsProducer"    ) ) ,
    m_useLCcorrection  ( params.getUntrackedParameter<bool>("UseLCcorrection") ) ,
    m_apdSeparateDigi  ( params.getParameter<bool>       ("apdSeparateDigi") ) ,
@@ -629,6 +636,75 @@ EcalDigiProducer::finalizeEvent(edm::Event& event, edm::EventSetup const& eventS
    event.put( barrelResult,    m_EBdigiCollection ) ;
    event.put( endcapResult,    m_EEdigiCollection ) ;
    event.put( preshowerResult, m_ESdigiCollection ) ;
+
+// ------------------------ Dump BX Info -------------------------------//
+    edm::ESHandle<EcalIntercalibConstantsMC>            pIcal   ;
+    eventSetup.get<EcalIntercalibConstantsMCRcd>().get( pIcal ) ;
+    const EcalIntercalibConstantsMC*   ical           ( pIcal.product() ) ;
+    const EcalIntercalibConstantMCMap &icalMap = ical->getMap();
+
+    std::auto_ptr<EBBXCollection> outEBHitsBX  ( new EBBXCollection() ) ;
+    const unsigned int ebsizeBX ( m_EBResponse->BXsamplesSizeAll() ) ;
+    outEBHitsBX->reserve( ebsizeBX ) ;
+
+    for( unsigned int i ( 0 ) ; i < ebsizeBX ; ++i ) {
+      DetId  detId = (*m_EBResponse->vBXSamAll( i )).id();
+      double pe2a = (*m_ParameterMap).simParameters(detId).photoelectronsToAnalog();
+      double icalconst = 1.;
+      EcalIntercalibConstantMCMap::const_iterator icalit = icalMap.find(detId);
+      if( icalit!=icalMap.end() ) 
+      {
+        icalconst = (*icalit);
+      } 
+
+      bool dumpFlag = false;
+      for( unsigned int j ( 0 ) ; j <= 15 ; ++j ) {
+        if((*m_EBResponse->vBXSamAll( i ))[j] * pe2a / icalconst >= 0.0025) {
+          dumpFlag = true;
+          break;
+        }
+      }
+      if (dumpFlag == true) {
+        outEBHitsBX->push_back( (*m_EBResponse->vBXSamAll( i )).id().rawId() );
+        EBBXFrame digi(outEBHitsBX->back());
+        for( unsigned int j ( 0 ) ; j <= 15 ; ++j ) {
+          digi.setSample( j, (uint16_t) ((*m_EBResponse->vBXSamAll( i ))[j] * pe2a / icalconst * 200. + 0.5) );
+        }
+      }
+    }
+    event.put( outEBHitsBX,     m_EBBXCollection ) ;
+
+    std::auto_ptr<EEBXCollection> outEEHitsBX  ( new EEBXCollection() ) ;
+    const unsigned int eesizeBX ( m_EEResponse->BXsamplesSizeAll() ) ;
+    outEEHitsBX->reserve( eesizeBX ) ;
+
+    for( unsigned int i ( 0 ) ; i < eesizeBX ; ++i ) {
+      DetId  detId = (*m_EEResponse->vBXSamAll( i )).id();
+      double pe2a = (*m_ParameterMap).simParameters(detId).photoelectronsToAnalog();
+
+      double icalconst = 1.;
+      EcalIntercalibConstantMCMap::const_iterator icalit = icalMap.find(detId);
+      if( icalit!=icalMap.end() )
+      {
+        icalconst = (*icalit);
+      }
+
+      bool dumpFlag = false;
+      for( unsigned int j ( 0 ) ; j <= 15 ; ++j ) {
+        if( (*m_EEResponse->vBXSamAll( i ))[j] * pe2a / icalconst >= 0.0025) {
+          dumpFlag = true;
+          break;
+        }
+      }
+      if (dumpFlag == true) {
+        outEEHitsBX->push_back( (*m_EEResponse->vBXSamAll( i )).id().rawId() );
+        EEBXFrame digi(outEEHitsBX->back());
+        for( unsigned int j ( 0 ) ; j <= 15 ; ++j ) {
+          digi.setSample( j, (uint16_t) ((*m_EEResponse->vBXSamAll( i ))[j] * pe2a / icalconst * 200. + 0.5) );
+        }
+      }
+    }
+    event.put( outEEHitsBX,     m_EEBXCollection ) ;
 }
 
 void

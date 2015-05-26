@@ -1,0 +1,68 @@
+#ifndef ECALTBXHITS_ICC
+#define ECALTBXHITS_ICC 1
+
+#include "CalibFormats/CaloObjects/interface/EcalTBXHits.h"
+
+template <class Ttype, uint32_t Tsize> 
+EcalTBXHits< Ttype, Tsize >::EcalTBXHits() :
+   EcalTBXHitsBase< Ttype > ( m_data, Tsize )
+{
+}
+
+template <class Ttype, uint32_t Tsize> 
+EcalTBXHits< Ttype, Tsize >::EcalTBXHits( const EcalTBXHits<Ttype,Tsize>& cs ) :
+   EcalTBXHitsBase<Ttype>( cs )
+{
+   if( &cs != this ) 
+   {
+      for( uint32_t i ( 0 ) ; i != Tsize ; ++i )
+      {
+	 m_data[ i ] = cs.m_data[ i ] ;
+      }
+   }
+}
+
+template <class Ttype, uint32_t Tsize> 
+EcalTBXHits< Ttype, Tsize >::EcalTBXHits( const DetId& id   , 
+					    uint32_t     size ,
+					    uint32_t     pre    ) :
+   EcalTBXHitsBase< Ttype > ( m_data, Tsize, id, size, pre )
+{
+}
+
+template <class Ttype, uint32_t Tsize> 
+EcalTBXHits< Ttype, Tsize >::~EcalTBXHits()
+{
+}
+
+template <class Ttype, uint32_t Tsize> 
+EcalTBXHits<Ttype,Tsize>& 
+EcalTBXHits< Ttype, Tsize >::operator=( const EcalTBXHits<Ttype,Tsize>& cs )
+{
+   EcalTBXHitsBase<Ttype>::operator=( cs ) ;
+   std::copy( cs.m_data, cs.m_data + Tsize, m_data ) ;
+   return *this ;
+}
+
+template <class Ttype, uint32_t Tsize> 
+uint32_t 
+EcalTBXHits< Ttype, Tsize >::capacity() const
+{
+   return Tsize ;
+}
+
+template <class Ttype, uint32_t Tsize> 
+Ttype* 
+EcalTBXHits< Ttype, Tsize >::data( uint32_t i )
+{
+   return &( m_data[ i ] ) ;
+}
+
+template <class Ttype, uint32_t Tsize> 
+const Ttype* 
+EcalTBXHits< Ttype, Tsize >::cdata( uint32_t i ) const
+{
+   return &( m_data[ i ] ) ;
+}
+
+#endif

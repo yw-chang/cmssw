@@ -14,6 +14,7 @@
    <class name="ESDataFrame" ClassVersion="10">
     <version ClassVersion="10" checksum="2345603108"/>
    </class>
+   <class name="EcalBXFrame"/>
    <class name="EcalTriggerPrimitiveSample" ClassVersion="10">
     <version ClassVersion="10" checksum="251958438"/>
    </class>
@@ -73,6 +74,14 @@
     <version ClassVersion="11" checksum="2204546010"/>
     <version ClassVersion="10" checksum="3717953085"/>
    </class>
+   <class name="EcalBXCollection" />
+   <class name="EBBXCollection" ClassVersion="0">
+    <version ClassVersion="0" checksum="3637831996"/>
+    <version ClassVersion="-1" checksum="4160254293"/>
+   </class>
+   <class name="EEBXCollection" ClassVersion="-1">
+    <version ClassVersion="-1" checksum="2627690997"/>
+   </class>          
    <class name="EcalTrigPrimCompactColl" ClassVersion="10">
     <version ClassVersion="10" checksum="4163430797"/>
    </class>
@@ -80,6 +89,9 @@
    <class name="edm::Wrapper<EBDigiCollection>" />
    <class name="edm::Wrapper<EEDigiCollection>" />
    <class name="edm::Wrapper<ESDigiCollection>" splitLevel="0"/>
+   <class name="edm::Wrapper<EcalBXCollection>" splitLevel="0"/>
+   <class name="edm::Wrapper<EBBXCollection>" />
+   <class name="edm::Wrapper<EEBXCollection>" />
    <class name="edm::Wrapper<EcalTrigPrimCompactColl>" splitLevel="0"/>   
    
    <class name="edm::SortedCollection<ESDataFrame,edm::StrictWeakOrdering<ESDataFrame> >"/>

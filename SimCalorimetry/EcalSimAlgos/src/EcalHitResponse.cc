@@ -131,6 +131,18 @@ EcalHitResponse::blankOutUsedSamples()  // blank out previously used elements
 		  m_index.end()    ) ;
 }
 
+void
+EcalHitResponse::blankOutUsedBXSamples()  // blank out previously used elements
+{
+    const unsigned int sizeBX ( m_indexBX.size() ) ;
+    for( unsigned int i ( 0 ) ; i != sizeBX ; ++i )
+    {
+       vBXSamAll( m_indexBX[i] )->setZero() ;
+    }
+    m_indexBX.erase( m_indexBX.begin() ,    // done and make ready to start over
+                   m_indexBX.end()    ) ;
+}
+
 void 
 EcalHitResponse::add( const PCaloHit& hit, CLHEP::HepRandomEngine* engine )
 {
@@ -171,6 +183,7 @@ void
 EcalHitResponse::initializeHits()
 {
    blankOutUsedSamples() ;
+   blankOutUsedBXSamples() ;
 }
 
 void
@@ -182,6 +195,7 @@ void
 EcalHitResponse::run( MixCollection<PCaloHit>& hits, CLHEP::HepRandomEngine* engine )
 {
    blankOutUsedSamples() ;
+   blankOutUsedBXSamples() ;
 
    for( MixCollection<PCaloHit>::MixItr hitItr ( hits.begin() ) ;
 	hitItr != hits.end() ; ++hitItr )
@@ -219,6 +233,12 @@ EcalHitResponse::putAnalogSignal( const PCaloHit& hit, CLHEP::HepRandomEngine* e
 					 - m_phaseShift             ) ) ;
    double binTime ( tzero ) ;
 
+   const int binBX (hit.eventId().bunchCrossing()+12);
+   if (binBX>=0 && binBX<=15) {
+     EcalBXSamples& resultBX ( *findSignalBX( detId ) ) ;
+     resultBX[ binBX ] += signal ;
+   }
+
    EcalSamples& result ( *findSignal( detId ) ) ;
 
    const unsigned int rsize ( result.size() ) ;
@@ -244,6 +264,15 @@ EcalHitResponse::findSignal( const DetId& detId )
    EcalSamples* result ( vSamAll( di ) ) ;
    if( result->zero() ) m_index.push_back( di ) ;
    return result ;
+}
+
+EcalHitResponse::EcalBXSamples*
+EcalHitResponse::findSignalBX( const DetId& detId )
+{
+   const unsigned int di ( CaloGenericDetId( detId ).denseIndex() ) ;
+   EcalBXSamples* resultBX ( vBXSamAll( di ) ) ;
+   if( resultBX->zero() ) m_indexBX.push_back( di ) ;
+   return resultBX ;
 }
 
 double 
@@ -286,6 +315,13 @@ EcalHitResponse::add( const EcalSamples* pSam )
    sam += (*pSam) ;
 }
 
+void
+EcalHitResponse::addBX( const EcalBXSamples* pSam )
+{
+   EcalBXSamples& sam ( *findSignalBX( pSam->id() ) ) ;
+   sam += (*pSam) ;
+}
+
 int 
 EcalHitResponse::minBunch() const 
 {
@@ -310,6 +346,18 @@ EcalHitResponse::index() const
    return m_index ; 
 }
 
+EcalHitResponse::VecInd&
+EcalHitResponse::indexBX()
+{
+   return m_indexBX ;
+}
+
+const EcalHitResponse::VecInd&
+EcalHitResponse::indexBX() const
+{
+   return m_indexBX ;
+}
+
 const CaloVHitFilter* 
 EcalHitResponse::hitFilter() const 
 { 
@@ -321,4 +369,11 @@ EcalHitResponse::findDetId( const DetId& detId ) const
 {
    const unsigned int di ( CaloGenericDetId( detId ).denseIndex() ) ;
    return vSamAll( di ) ;
+}
+
+const EcalHitResponse::EcalBXSamples*
+EcalHitResponse::findDetIdBX( const DetId& detId ) const
+{
+   const unsigned int di ( CaloGenericDetId( detId ).denseIndex() ) ;
+   return vBXSamAll( di ) ;
 }

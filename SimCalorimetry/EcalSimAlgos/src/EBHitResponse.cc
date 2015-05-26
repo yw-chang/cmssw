@@ -45,10 +45,13 @@ EBHitResponse::EBHitResponse( const CaloVSimParameterMap* parameterMap ,
    const unsigned int size ( EBDetId::kSizeForDenseIndexing ) ;
 
    m_vSam.reserve( size ) ;
+   m_vBXSam.reserve( size ) ;
 
    for( unsigned int i ( 0 ) ; i != size ; ++i )
    {
       m_vSam.emplace_back(CaloGenericDetId( detId.det(), detId.subdetId(), i ) ,
+		    rSize, nPre );
+      m_vBXSam.emplace_back(CaloGenericDetId( detId.det(), detId.subdetId(), i ) ,
 		    rSize, nPre );
    }
 }
@@ -192,6 +195,7 @@ EBHitResponse::findIntercalibConstant( const DetId& detId,
 void 
 EBHitResponse::initializeHits() {
    if( 0 != index().size() ) blankOutUsedSamples() ;
+   if( 0 != indexBX().size() ) blankOutUsedBXSamples() ;
 
    const unsigned int bSize ( EBDetId::kSizeForDenseIndexing ) ;
 
@@ -345,4 +349,34 @@ const EcalHitResponse::EcalSamples*
 EBHitResponse::vSamAll( unsigned int i ) const
 {
    return &m_vSam[ i ] ;
+}
+
+unsigned int
+EBHitResponse::BXsamplesSize() const
+{
+   return m_vBXSam.size() ;
+}
+
+unsigned int
+EBHitResponse::BXsamplesSizeAll() const
+{
+   return m_vBXSam.size() ;
+}
+
+EcalHitResponse::EcalBXSamples*
+EBHitResponse::vBXSam( unsigned int i )
+{
+   return &m_vBXSam[ i ] ;
+}
+
+EcalHitResponse::EcalBXSamples*
+EBHitResponse::vBXSamAll( unsigned int i )
+{
+   return &m_vBXSam[ i ] ;
+}
+
+const EcalHitResponse::EcalBXSamples*
+EBHitResponse::vBXSamAll( unsigned int i ) const
+{
+   return &m_vBXSam[ i ] ;
 }

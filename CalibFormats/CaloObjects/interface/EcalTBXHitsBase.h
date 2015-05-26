@@ -1,0 +1,61 @@
+#ifndef ECALTBXHITSBASE_H
+#define ECALTBXHITSBASE_H 1
+
+#include <ostream>
+#include "DataFormats/DetId/interface/DetId.h"
+#include <assert.h>
+
+template <class Ttype> 
+class EcalTBXHitsBase 
+{
+   public:
+
+      EcalTBXHitsBase<Ttype>( Ttype*   mydata, 
+			       uint32_t size    )  ;
+
+      EcalTBXHitsBase<Ttype>( const EcalTBXHitsBase<Ttype>& cs )  ;
+
+      EcalTBXHitsBase<Ttype>( Ttype*       mydata , 
+			       uint32_t     length ,
+			       const DetId& id     , 
+			       uint32_t     size   ,
+			       uint32_t     pre      ) ;
+
+      virtual ~EcalTBXHitsBase<Ttype>() ;
+
+      void setZero() ;
+
+      DetId    id()   const ;
+      uint32_t size() const ;
+      uint32_t pre()  const ;
+      bool     zero() const ;
+
+      Ttype&       operator[]( uint32_t i ) ;
+
+      const Ttype& operator[]( uint32_t i ) const ;
+
+      EcalTBXHitsBase<Ttype>& operator=( const EcalTBXHitsBase<Ttype>& cs ) ;
+
+      EcalTBXHitsBase<Ttype>& operator*=( Ttype value ) ;
+
+      EcalTBXHitsBase<Ttype>& operator+=( Ttype value ) ;
+
+      EcalTBXHitsBase<Ttype>& operator+=( const EcalTBXHitsBase<Ttype>& cs ) ;
+
+      virtual uint32_t capacity() const = 0 ;
+
+   private:
+
+      virtual Ttype* data( uint32_t i ) = 0 ;
+      virtual const Ttype* cdata( uint32_t i ) const = 0 ;
+
+      DetId    m_id   ;
+      uint32_t m_size ;
+      uint32_t m_pre  ;
+} ;
+
+template <class Ttype>
+std::ostream& operator<<( std::ostream& s, 
+			  const EcalTBXHitsBase<Ttype>& sam ) ;
+
+#endif

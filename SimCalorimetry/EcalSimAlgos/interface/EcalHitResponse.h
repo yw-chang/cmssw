@@ -2,7 +2,9 @@
 #define EcalSimAlgos_EcalHitResponse_h
 
 #include "CalibFormats/CaloObjects/interface/CaloTSamplesBase.h"
+#include "CalibFormats/CaloObjects/interface/EcalTBXHitsBase.h"
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
+#include "CalibFormats/CaloObjects/interface/EcalBXHits.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
@@ -30,6 +32,7 @@ class EcalHitResponse
    public:
 
       typedef CaloTSamplesBase<float> EcalSamples ;
+      typedef EcalTBXHitsBase<float> EcalBXSamples ;
 
       typedef std::vector< unsigned int > VecInd ;
 
@@ -59,6 +62,8 @@ class EcalHitResponse
 
       void add( const EcalSamples* pSam ) ;
 
+      void addBX( const EcalBXSamples* pSam ) ;
+
       virtual void add( const PCaloHit&  hit, CLHEP::HepRandomEngine* ) ;
 
       virtual void add( const CaloSamples&  hit ) ;
@@ -76,6 +81,18 @@ class EcalHitResponse
       virtual const EcalSamples* operator[]( unsigned int i ) const = 0;
 
       const EcalSamples* findDetId( const DetId& detId ) const ;
+
+      virtual unsigned int BXsamplesSize() const = 0 ;
+
+      virtual unsigned int BXsamplesSizeAll() const = 0 ;
+
+      virtual EcalBXSamples* vBXSam( unsigned int i ) = 0 ;
+
+      virtual EcalBXSamples* vBXSamAll( unsigned int i ) = 0 ;
+
+      virtual const EcalBXSamples* vBXSamAll( unsigned int i ) const = 0 ;
+
+      const EcalBXSamples* findDetIdBX( const DetId& detId ) const ;
 
       bool withinBunchRange(int bunchCrossing) const ;
 
@@ -95,6 +112,8 @@ class EcalHitResponse
 
       EcalSamples* findSignal( const DetId& detId ) ;
 
+      EcalBXSamples* findSignalBX( const DetId& detId ) ;
+
       double analogSignalAmplitude( const DetId& id, float energy, CLHEP::HepRandomEngine* ) const;
 
       double timeOfFlight( const DetId& detId ) const ;
@@ -102,6 +121,8 @@ class EcalHitResponse
       double phaseShift() const ;
 
       void blankOutUsedSamples() ;
+
+      void blankOutUsedBXSamples() ;
 
       const CaloSimParameters* params( const DetId& detId ) const ;
 
@@ -116,6 +137,10 @@ class EcalHitResponse
       VecInd& index() ;
 
       const VecInd& index() const ;
+
+      VecInd& indexBX() ;
+
+      const VecInd& indexBX() const ;
 
       const CaloVHitFilter* hitFilter() const ;
 
@@ -137,6 +162,7 @@ class EcalHitResponse
       bool                           m_useLCcorrection;
 
       VecInd m_index ;
+      VecInd m_indexBX ;
 };
 
 #endif

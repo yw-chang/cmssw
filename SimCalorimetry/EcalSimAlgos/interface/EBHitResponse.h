@@ -2,6 +2,7 @@
 #define EcalSimAlgos_EBHitResponse_h
 
 #include "CalibFormats/CaloObjects/interface/CaloTSamples.h"
+#include "CalibFormats/CaloObjects/interface/EcalTBXHits.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalHitResponse.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsMC.h"
 
@@ -16,6 +17,7 @@ class EBHitResponse : public EcalHitResponse
    public:
 
       typedef CaloTSamples<float,10> EBSamples ;
+      typedef EcalTBXHits<float,16> EBBXSamples ;
 
       typedef std::vector<double> VecD ;
 
@@ -49,6 +51,17 @@ class EBHitResponse : public EcalHitResponse
       virtual EcalSamples* operator[]( unsigned int i ) ;
 
       virtual const EcalSamples* operator[]( unsigned int i ) const ;
+
+
+      virtual unsigned int BXsamplesSize() const ;
+
+      virtual unsigned int BXsamplesSizeAll() const ;
+
+      virtual EcalBXSamples* vBXSamAll( unsigned int i ) ;
+
+      virtual const EcalBXSamples* vBXSamAll( unsigned int i ) const ;
+
+      virtual EcalBXSamples* vBXSam( unsigned int i ) ;
 
    protected:
 
@@ -98,6 +111,7 @@ class EBHitResponse : public EcalHitResponse
       const double pcub, pqua, plin, pcon, pelo, pehi, pasy, pext, poff, pfac ;
 
       std::vector<EBSamples> m_vSam ;
+      std::vector<EBBXSamples> m_vBXSam ;
 
       bool m_isInitialized;
 };

@@ -98,6 +98,8 @@ class EcalDigiProducer : public DigiAccumulatorMixMod {
       const std::string m_EBdigiCollection ;
       const std::string m_EEdigiCollection ;
       const std::string m_ESdigiCollection ;
+      const std::string m_EBBXCollection ;
+      const std::string m_EEBXCollection ;
       const std::string m_hitsProducerTag  ;
 
       bool  m_useLCcorrection;

@@ -7,10 +7,12 @@ from SimCalorimetry.EcalSimProducers.ecalElectronicsSim_cff import *
 from SimCalorimetry.EcalSimProducers.esElectronicsSim_cff import *
 from SimCalorimetry.EcalSimProducers.ecalNotContainmentSim_cff import *
 from SimCalorimetry.EcalSimProducers.ecalCosmicsSim_cff import *
+from SimCalorimetry.EcalSimProducers.ecalBxDump_cff import *
 
 ecalDigitizer = cms.PSet(
     ecal_digi_parameters,
     apd_sim_parameters,
+    ecal_bx_dump,
     ecal_electronics_sim,
     ecal_cosmics_sim,
     ecal_sim_parameter_map,
